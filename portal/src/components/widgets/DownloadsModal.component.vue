@@ -1,15 +1,7 @@
 <template>
-  <el-dialog
-      v-model="visible"
-      title="Downloads for this collection"
-      width="50%">
-    <el-pagination class="items-center w-full"
-                   background layout="prev, pager, next"
-                   :total="objectTotals || 0"
-                   v-model:page-size="pageSize"
-                   v-model:currentPage="currentPage"
-                   @current-change="updatePages($event)"
-                   @update:page-size="pageSize"/>
+  <el-dialog v-model="visible" title="Downloads for this collection" width="50%">
+    <el-pagination class="items-center w-full" background layout="prev, pager, next" :total="objectTotals || 0"
+      v-model:page-size="pageSize" v-model:currentPage="currentPage" @current-change="updatePages($event)" />
     <div v-if="objectTotals > 0" v-loading="loading">
       <el-row class="hidden-sm-and-down py-2">
         <el-col :xs="24" :sm="8" :md="8" :lg="8" :xl="8">
@@ -22,10 +14,10 @@
           <h3 class="font-bold">License</h3>
         </el-col>
       </el-row>
+      <AccessHelper v-if="accessChild" :access="accessChild.access" :license="accessChild.license || []" />
       <template v-for="(obj, index) of objects" :key="index">
-        <ZipLink :id="obj.id" :name="obj.name" :licenses="obj.license"
-                 :message="obj.message" :asTableRow="true"
-                 v-if="obj.name"/>
+        <ZipLink @accessDetails="accessInfo" :id="obj.id" :name="obj.name" :licenses="obj.license || []"
+          :message="obj.message" :asTableRow="true" v-if="obj.name" />
       </template>
     </div>
     <template v-else>
@@ -41,10 +33,14 @@
 <script>
 import { first } from 'lodash';
 import ZipLink from '../ZipLink.component.vue';
+import { getLocalStorage } from '@/storage';
+import AccessHelper from '../AccessHelper.component.vue';
+
 
 export default {
   components: {
     ZipLink,
+    AccessHelper,
   },
   props: ['id', 'modelValue', 'title'],
   data() {
@@ -58,6 +54,10 @@ export default {
       objectsScrollId: '',
       pageSize: 10,
       currentPage: 1,
+      accessChild: null,
+      isLoggedIn: false,
+      isLoginEnabled: this.$store.state.configuration.ui.login?.enabled,
+      license: [],
     };
   },
   computed: {
@@ -71,6 +71,13 @@ export default {
     },
   },
   watch: {
+    '$store.state.user': {
+      async handler() {
+        this.isLoggedIn = getLocalStorage({ key: 'isLoggedIn' });
+      },
+      flush: 'post',
+      immediate: true,
+    },
     visible: {
       handler(newValue, oldValue) {
         if (newValue) {
@@ -80,6 +87,9 @@ export default {
     },
   },
   methods: {
+    accessInfo(accessDetails) {
+      this.accessChild = accessDetails;
+    },
     first,
     closeModal() {
       this.visible = false;
