@@ -1,13 +1,13 @@
 <template v-loading="loading">
-  <template v-if="access['hasAccess'] && access['group']">
+  <template v-if="access['hasAccess'] && access['group'] && isLoggedIn">
     <el-row class="px-5 py-6 bg-green-100 text-green-700">
       <div class="pr-3">
-        <font-awesome-icon icon="fa-solid fa-5x fa-user-lock"/>
+        <font-awesome-icon icon="fa-solid fa-5x fa-user-lock" />
       </div>
       <div>
         <p>Access to <a :href="license['@id']" class="font-bold">{{
-            first(license['name'])?.['@value'] || license['@id']
-          }}</a> granted
+          first(license['name'])?.['@value'] || license['@id']
+            }}</a> granted
           to {{ this.user?.['name'] || this.user?.['email'] }}
         </p>
       </div>
@@ -17,7 +17,7 @@
     <el-row class="px-5 py-6 bg-red-200 text-red-700">
       <el-row>
         <p class="items-center">
-          <font-awesome-icon icon="fa-solid fa-5x fa-lock"/>&nbsp;You do not have permission to see these files.&nbsp;
+          <font-awesome-icon icon="fa-solid fa-5x fa-lock" />&nbsp;You do not have permission to see these files.&nbsp;
         </p>
       </el-row>
       <el-row v-if="errorMessage">
@@ -26,23 +26,23 @@
         </p>
       </el-row>
       <template v-if="isLoggedIn" v-loading="loading">
-        <enrollment-card v-if="noEnrollment"/>
+        <enrollment-card v-if="noEnrollment" />
         <template v-else>
           <el-row>
             <p class="items-center">You are logged in and you can apply for permission to view these files</p>
           </el-row>
           <el-row v-if="enrollment?.url">
             <el-link underline="underline" :href="enrollment.url" target="_blank" class="mx-1"
-                     title="Will open in a new tab">
-              {{ enrollment.label }}&nbsp;<font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square"/>
+              title="Will open in a new tab">
+              {{ enrollment.label }}&nbsp;<font-awesome-icon icon="fa-solid fa-arrow-up-right-from-square" />
             </el-link>
-            <enrollment-card v-if="noEnrollment"/>
+            <enrollment-card v-if="noEnrollment" />
           </el-row>
           <el-row v-if="enrollment?.url">
             or <el-link underline="underline" type='default' @click="refreshAuthorization()" class="mx-1">
               refresh permissions
             </el-link>
-            <enrollment-card v-if="noEnrollment"/>
+            <enrollment-card v-if="noEnrollment" />
           </el-row>
           <el-row v-else>
             <p class="items-center">No access control url has been configured, please contact the administrator</p>

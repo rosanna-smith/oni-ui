@@ -23,8 +23,9 @@ export default class ZipService {
     zip.numberOfFiles = response.headers.get('Archive-File-Count');
     if (response.status === 200) {
       zip.url = `${this.apiPath}${route}`;
+      zip.hasAccess = true;
     } else if (response.status === 403) {
-      zip.noAccess = true;
+      zip.hasAccess = false;
     }
     return zip;
   }

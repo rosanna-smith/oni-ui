@@ -14,9 +14,10 @@
           <h3 class="font-bold">License</h3>
         </el-col>
       </el-row>
+      <AccessHelper v-if="accessChild" :access="accessChild.access" :license="accessChild.license || []" />
       <template v-for="(obj, index) of objects" :key="index">
-        <ZipLink :id="obj.id" :name="obj.name" :licenses="obj.license" :message="obj.message" :asTableRow="true"
-          v-if="obj.name" />
+        <ZipLink @accessDetails="accessInfo" :id="obj.id" :name="obj.name" :licenses="obj.license || []"
+          :message="obj.message" :asTableRow="true" v-if="obj.name" />
       </template>
     </div>
     <template v-else>
@@ -33,10 +34,12 @@
 import { first } from 'lodash';
 import ZipLink from '../ZipLink.component.vue';
 import { getLocalStorage } from '@/storage';
+import AccessHelper from '../AccessHelper.component.vue';
 
 export default {
   components: {
     ZipLink,
+    AccessHelper,
   },
   props: ['id', 'modelValue', 'title'],
   data() {
@@ -50,6 +53,10 @@ export default {
       objectsScrollId: '',
       pageSize: 10,
       currentPage: 1,
+      accessChild: null,
+      isLoggedIn: false,
+      isLoginEnabled: this.$store.state.configuration.ui.login?.enabled,
+      license: [],
     };
   },
   computed: {
@@ -79,6 +86,9 @@ export default {
     },
   },
   methods: {
+    accessInfo(accessDetails) {
+      this.accessChild = accessDetails;
+    },
     first,
     closeModal() {
       this.visible = false;
